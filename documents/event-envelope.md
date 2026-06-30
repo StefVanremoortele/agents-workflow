@@ -137,6 +137,7 @@ For `agent.task.started`, `agent.task.updated`, `agent.task.completed`, and `age
   "taskId": "task-123",
   "task": "Implement feature",
   "progress": 40,
+  "progressSource": "pi-lifecycle",
   "step": 2,
   "totalSteps": 5,
   "steps": [
@@ -145,6 +146,8 @@ For `agent.task.started`, `agent.task.updated`, `agent.task.completed`, and `age
   ]
 }
 ```
+
+Step statuses are `todo`, `running`, `completed`, `blocked`, or `failed`. `progressSource` is optional but recommended when progress is derived from producer lifecycle telemetry rather than an explicit semantic checklist.
 
 If these fields are omitted, the dashboard shows progress as unavailable instead of fabricating mock steps.
 

@@ -260,7 +260,7 @@ export class HarnessStore {
       }
     }
 
-    if (event.event.type === "agent.task.started" || task) {
+    if (event.event.type === "agent.task.started" || event.event.type === "agent.task.updated" || task) {
       agent.currentTask = this.upsertTask(event, agent, {
         status: "running",
         title: task ?? event.event.title ?? "Untitled task",

@@ -131,7 +131,7 @@ It includes:
 - latest conclusion panel showing the final assistant response captured at task completion
 - activity log sourced from recent events for that agent, including conclusion/content previews
 
-The UI no longer fabricates workflow checklist items. If a producer does not report `progress`, `step`/`totalSteps`, or `steps` in task event payloads, Fleet Control displays progress as unavailable and directs users to the live activity log.
+The UI no longer fabricates workflow checklist items. If a producer does not report `progress`, `step`/`totalSteps`, or `steps` in task event payloads, Fleet Control displays progress as unavailable and directs users to the live activity log. The Pi reporter emits automatic lifecycle/tool steps and can optionally accept explicit semantic steps through its `harness_progress` tool.
 
 ## State management
 
@@ -166,5 +166,5 @@ The client infers:
 
 - `apiBase` defaults to `http://localhost:4000`; override at build time with `VITE_API_BASE` (see `src/web/config.ts`).
 - Pause/Stop/Respond buttons are visual placeholders; no control API is implemented yet.
-- Pi currently does not report granular task steps, so many active Pi tasks show progress as unavailable until producer telemetry is extended.
+- Pi lifecycle progress is coarse and reflects harness events, not guaranteed semantic task completion. Semantic checklist progress requires explicit `harness_progress` reports.
 - Alerts/rules are available via API but are not surfaced in the current Fleet Control UI.

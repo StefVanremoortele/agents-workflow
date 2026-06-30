@@ -92,43 +92,97 @@ The session/process suffix makes each running pi session/process appear as a sep
 
 ## Events emitted
 
+### Task progress telemetry
+
+The reporter now emits real structured task progress. It does not parse assistant prose or fabricate implementation checklists.
+
+Progress can come from two sources:
+
+- `pi-lifecycle`: automatic coarse lifecycle phases from Pi hooks.
+- `producer-reported`: explicit semantic progress reported through the optional `harness_progress` tool.
+
+Task event payloads may include:
+
+```json
+{
+  "taskId": "123-task",
+  "task": "Implement dashboard change",
+  "progress": 40,
+  "progressSource": "pi-lifecycle",
+  "step": 2,
+  "totalSteps": 5,
+  "steps": [
+    { "id": "lifecycle:1", "label": "Receive user task", "status": "completed" },
+    { "id": "lifecycle:2", "label": "Start agent loop", "status": "running" }
+  ]
+}
+```
+
+Automatic lifecycle steps are:
+
+1. Receive user task
+2. Start agent loop
+3. Run tool calls
+4. Produce assistant response
+5. Complete task
+
+Tool calls/results add real tool-level steps such as `Read file`, `Edit file`, or `Run shell command`.
+
+### Optional `harness_progress` tool
+
+The extension registers a `harness_progress` tool. The model may call it to report explicit dashboard progress:
+
+```json
+{
+  "progress": 50,
+  "steps": [
+    { "label": "Inspect current implementation", "status": "completed" },
+    { "label": "Update reporter telemetry", "status": "running" }
+  ]
+}
+```
+
+The injected system prompt guidance tells the model to use this only for real task state, not speculative plans.
+
 ### Session start
 
 Sends `agent.status` with `payload.status = "idle"`.
 
 ### Before agent start
 
-Sends `agent.task.started` with the user prompt as task content.
+Sends `agent.task.started` with the user prompt as task content, a task id, and initial lifecycle progress. Also injects a short system prompt hint describing the optional `harness_progress` tool.
 
 ### Agent start
 
-Sends `agent.status` with `payload.status = "working"`.
+Sends `agent.task.updated` to mark the agent loop started, then sends `agent.status` with `payload.status = "working"`.
 
 ### Agent end
 
 The extension remembers the latest finalized assistant message for the turn. When the agent ends, it sends:
 
 1. `message.assistant` with `content` and `conclusion` set to the final assistant response, when available
-2. `agent.task.completed`
+2. `agent.task.completed` with final lifecycle/tool progress
 3. `agent.status` with `payload.status = "idle"`
 
 The final response is only attached to `message.assistant` so the Activity Log does not show duplicate conclusion entries.
 
 ### Tool call
 
-Sends `tool.call` with:
+Sends `agent.task.updated` with a running tool step, then sends `tool.call` with:
 
 - tool name
 - tool input
+- current task id
 
 ### Tool result
 
-Sends `tool.result` with:
+Sends `agent.task.updated` marking the matching tool step completed or failed, then sends `tool.result` with:
 
 - tool name
 - text content truncated to 8000 characters
 - error status
 - original input
+- current task id
 
 If the tool result is an error, severity is `error`; otherwise severity is `info`.
 
