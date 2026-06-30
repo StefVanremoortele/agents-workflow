@@ -15,14 +15,16 @@
     "start:server": "node dist-server/server.js",
     "build:server": "tsc -p tsconfig.json",
     "build:web": "vite build",
-    "build": "npm run build:server && npm run build:web"
+    "build": "npm run build:server && npm run build:web",
+    "typecheck:web": "tsc -p tsconfig.web.json"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
     "better-sqlite3": "^12.11.1",
     "react": "latest",
     "react-dom": "latest",
-    "vite": "latest"
+    "vite": "latest",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
