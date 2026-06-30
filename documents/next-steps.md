@@ -75,7 +75,7 @@ Possible UI additions:
 - charts and timelines
 - stored first-class task step records instead of inferred detail steps
 - dark/light theme support
-- configurable API base URL instead of hardcoded `http://localhost:4000`
+- runtime (not just build-time `VITE_API_BASE`) API base URL configuration
 
 ## Production hardening
 

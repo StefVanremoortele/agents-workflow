@@ -40,7 +40,7 @@ A central observability/control foundation for agentic software-development work
 | Store/reducer | `src/store.ts` | Events, agents, tasks, rules, alerts, conclusions, derived dashboard state |
 | SQLite database | `src/db.ts` | Persistent storage and schema management |
 | Shared types | `src/types.ts` | Event, agent, task, alert, rule, dashboard type definitions |
-| React dashboard | `src/web/main.tsx` | Fleet UI state, REST loading, SSE subscriptions, detail view |
+| React dashboard | `src/web/` | Modular Fleet UI: `app/`, `store/` (Zustand), `api/`, `hooks/`, `lib/`, `components/`. Entry `main.tsx` → `app/App.tsx` |
 | Dashboard styles | `src/web/styles.css` | Fleet Control aesthetic and responsive layout |
 | Pi adapter | `.pi/extensions/harness-reporter.ts` | Emits pi events to the harness server |
 | Pi global installer | `scripts/install-pi-harness-extension.mjs` | Installs the Pi adapter globally |

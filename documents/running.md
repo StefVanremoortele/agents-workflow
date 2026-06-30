@@ -95,6 +95,14 @@ This creates:
 - `dist-server/` for the TypeScript server build
 - `dist/` for the Vite web build
 
+## Typecheck the web app
+
+The web app is type-checked separately from the server build:
+
+```bash
+npm run typecheck:web
+```
+
 ## Start built server
 
 ```bash

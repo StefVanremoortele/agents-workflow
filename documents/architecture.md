@@ -26,7 +26,7 @@ Node Harness Server (`src/server.ts`)
         └─ streams realtime updates over SSE
               │
               ▼
-React Fleet Control (`src/web/main.tsx`)
+React Fleet Control (`src/web/`, entry `main.tsx` → `app/App.tsx`)
 ```
 
 ## Server responsibilities
@@ -81,18 +81,21 @@ Current caps in `HarnessStore`:
 
 ## Client responsibilities
 
-`src/web/main.tsx` currently handles:
+The Fleet Control SPA is a modular React/Vite app under `src/web/` (entry `main.tsx` mounts `app/App.tsx`). Responsibilities are split by layer:
 
-- initial REST load from `/dashboard`, `/agents`, `/tasks`, and `/events?limit=200`.
-- SSE subscription to `/stream`.
-- local UI state for cards/table view, filters, live/pause display, sparklines, selected detail agent, and inline rename.
-- rendering Fleet Control cards/table.
-- rendering the agent detail view.
+- `api/client.ts` — initial REST load from `/dashboard`, `/agents`, `/tasks`, `/events?limit=200`, and `/conclusions`, plus agent rename.
+- `api/stream.ts` + `hooks/useEventStream.ts` — SSE subscription to `/stream`.
+- `store/fleetStore.ts` — a Zustand store holding all server and UI state (cards/table view, filters, live/pause, sparkline histories, selected detail agent) and the actions that mutate it.
+- `hooks/useFleetAgents.ts` + `lib/derive.ts` — derive UI-friendly `FleetAgent` records (state, model, progress, ETA inference) from raw server records.
+- `components/fleet/` and `components/detail/` — presentational components reading from store selectors.
 
-The web app currently hardcodes:
+Types come from `src/types.ts` via `src/web/types/view.ts`, so client and server share a single source of truth.
+
+The API base URL defaults to `http://localhost:4000` and is overridable at build time:
 
 ```ts
-const apiBase = "http://localhost:4000";
+// src/web/config.ts
+export const apiBase = (import.meta.env.VITE_API_BASE as string | undefined) ?? "http://localhost:4000";
 ```
 
 ## Realtime model

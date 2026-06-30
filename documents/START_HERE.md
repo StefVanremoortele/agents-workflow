@@ -71,9 +71,13 @@ Environment overrides:
 - `src/server.ts` — routes, validation, SSE.
 - `src/store.ts` — event reduction, rules, derived dashboard state.
 - `src/db.ts` — SQLite schema and persistence.
-- `src/types.ts` — shared domain types.
-- `src/web/main.tsx` — React app, fleet views, detail view.
+- `src/types.ts` — shared domain types (re-exported by the web app).
+- `src/web/main.tsx` — thin React entry that mounts `app/App.tsx`.
+- `src/web/store/fleetStore.ts` — Zustand store: client state and actions.
+- `src/web/api/` — REST and SSE clients.
+- `src/web/components/` — fleet and detail view components.
 - `src/web/styles.css` — visual design.
+- See `documents/dashboard.md` for the full web app layout.
 - `.pi/extensions/harness-reporter.ts` — Pi extension producer.
 - `scripts/install-pi-harness-extension.mjs` — global Pi installer.
 

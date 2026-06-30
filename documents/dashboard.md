@@ -1,13 +1,27 @@
 # React Dashboard: Fleet Control
 
-The dashboard is a React/Vite single-page client.
+The dashboard is a React/Vite single-page client with a modular architecture under `src/web/`. State lives in a Zustand store; components are presentational and read from it via selectors.
 
-## Path
+## Layout
 
 ```text
-src/web/main.tsx
-src/web/styles.css
+src/web/
+  main.tsx                 Thin entry: mounts <App />
+  app/App.tsx              Root: hooks + fleet/detail view switch
+  config.ts                apiBase (VITE_API_BASE), cache key, history lengths
+  store/fleetStore.ts      Zustand store: server + UI state and actions
+  api/client.ts            REST client (dashboard/agents/tasks/events/conclusions, rename)
+  api/stream.ts            SSE wiring (createEventStream)
+  hooks/                   useBootstrap, useEventStream, useClock, useFleetAgents
+  lib/                     derive, history, format, logEvents, cache, markdown
+  components/common/       StatusPill, Sparkline
+  components/fleet/        FleetDashboard, Kpi, FilterChip, AgentCard, AgentTable, Progress, WaitingBanner
+  components/detail/       AgentDetailView, zen overlays, ActivityLogRow, DetailMetric, DetailRow
+  types/view.ts            Web view types; re-exports backend records from src/types.ts
+  styles.css               Fleet Control visual system
 ```
+
+Imports within the app use the `@/` alias (configured in `vite.config.ts` and `tsconfig.web.json`), e.g. `@/store/fleetStore`.
 
 ## Purpose
 
@@ -119,9 +133,13 @@ It includes:
 
 Some task checklist steps are inferred client-side from current progress because the event protocol does not yet provide detailed step records.
 
+## State management
+
+`store/fleetStore.ts` is a single Zustand store holding all server state (dashboard, agents, tasks, events, conclusions, sparkline histories) and UI state (view, filters, live/pause, selected agent, detail carousel). Actions on the store handle REST refresh, SSE updates, rename, and navigation. The `hooks/` layer connects the store to the runtime: `useBootstrap` hydrates from cache then refreshes, `useEventStream` routes `/stream` frames into store actions, and `useClock` drives the header clock and throughput window.
+
 ## State derivation in the client
 
-`toFleetAgent` converts server `AgentRecord` + `AgentTaskRecord[]` into UI-friendly `FleetAgent` records.
+`useFleetAgents` (backed by `lib/derive.ts`'s `toFleetAgent`) converts server `AgentRecord` + `AgentTaskRecord[]` into UI-friendly `FleetAgent` records.
 
 The client infers:
 
@@ -146,7 +164,7 @@ The client infers:
 
 ## Known limitations
 
-- `apiBase` is hardcoded to `http://localhost:4000`.
+- `apiBase` defaults to `http://localhost:4000`; override at build time with `VITE_API_BASE` (see `src/web/config.ts`).
 - Pause/Stop/Respond buttons are visual placeholders; no control API is implemented yet.
 - Detail task steps are inferred rather than stored as first-class backend records.
 - Alerts/rules are available via API but are not surfaced in the current Fleet Control UI.
