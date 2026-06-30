@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-server/
+
+# Runtime state and local databases
+.harness/
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Environment/local secrets
+.env
+.env.*
+!.env.example
+
+# Editor/OS artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Claude Code overrides
+.claude/settings.local.json
+
+# Windows downloaded-file metadata
+*:Zone.Identifier

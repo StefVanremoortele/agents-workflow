@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1",
+  "source": {
+    "id": "sim-agent-1",
+    "type": "agent",
+    "name": "Simulated Agent",
+    "adapter": "manual-curl",
+    "project": {
+      "name": "pi-test",
+      "path": "/home/SimitStef/sources/repos/stef/pi-test"
+    },
+    "host": {
+      "hostname": "devbox",
+      "user": "SimitStef",
+      "cwd": "/home/SimitStef/sources/repos/stef/pi-test"
+    }
+  },
+  "event": {
+    "type": "agent.task.started",
+    "title": "Browser Reflection Test Task",
+    "content": "Testing that the current agent task name appears in the browser dashboard.",
+    "severity": "info",
+    "tags": ["simulation", "task", "browser-test"],
+    "payload": {
+      "status": "working",
+      "taskId": "task-browser-reflection-test-1",
+      "task": "Browser Reflection Test Task"
+    }
+  },
+  "context": {
+    "sessionId": "manual-browser-test-session",
+    "taskId": "task-browser-reflection-test-1",
+    "visibility": "project"
+  }
+}

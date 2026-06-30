@@ -1,0 +1,36 @@
+{
+  "name": "agent-harness",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:server": "tsx src/server.ts",
+    "dev:web": "vite --host 0.0.0.0",
+    "dev": "npm-run-all --parallel dev:server dev:web",
+    "reload:source-name": "node scripts/reload-source-name.mjs",
+    "pi:harness:name": "node scripts/set-pi-harness-name.mjs",
+    "pi:harness:install-global": "node scripts/install-pi-harness-extension.mjs",
+    "db:init": "node scripts/db-init.mjs",
+    "db:reset": "node scripts/db-reset.mjs",
+    "start:server": "node dist-server/server.js",
+    "build:server": "tsc -p tsconfig.json",
+    "build:web": "vite build",
+    "build": "npm run build:server && npm run build:web"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "better-sqlite3": "^12.11.1",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "npm-run-all": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}

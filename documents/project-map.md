@@ -1,0 +1,62 @@
+# Project Map
+
+Use this as the quickest way to find the right file for a change.
+
+## Runtime entry points
+
+| Path | Purpose |
+|---|---|
+| `src/server.ts` | Node HTTP server, all routes, JSON validation, SSE broadcasting, outbox import on startup. |
+| `src/store.ts` | Domain reducer: events → agents/tasks/conclusions/alerts/dashboard summary. |
+| `src/db.ts` | SQLite persistence layer, schema initialization, serialization/deserialization. |
+| `src/types.ts` | Shared TypeScript domain types for events, agents, tasks, alerts, rules, dashboard. |
+| `src/web/main.tsx` | React SPA: fleet cards/table, filters, live SSE handling, agent detail view. |
+| `src/web/styles.css` | Fleet Control visual system and responsive layout. |
+| `index.html` | Vite HTML entry. |
+
+## Producers and integrations
+
+| Path | Purpose |
+|---|---|
+| `.pi/extensions/harness-reporter.ts` | Pi extension that reports session, task, and tool events. Can be project-local or installed globally. |
+| `scripts/install-pi-harness-extension.mjs` | Copies the Pi extension to `~/.pi/agent/extensions/` and optionally writes global config. |
+| `scripts/set-pi-harness-name.mjs` | Sets/updates the display name for a Pi harness source. |
+| `scripts/reload-source-name.mjs` | Sends a one-off status event to refresh a source name. |
+| `adapters/claude-code-hook.mjs` | Claude Code hook producer; maps hooks to harness events and queues offline outbox entries. |
+| `.claude/settings.json` | Project-local Claude Code hook configuration pointing at the adapter. |
+
+## Database and runtime artifacts
+
+| Path | Purpose |
+|---|---|
+| `.harness/harness.db` | Default SQLite database. |
+| `.harness/outbox.jsonl` | Default queued producer events for later server import. |
+| `.harness/pi-harness.json` | Optional project Pi source config. |
+| `dist-server/` | Generated server build output. |
+| `dist/` | Generated web build output. |
+| `node_modules/` | Installed npm dependencies. |
+
+## Documentation
+
+| Path | Purpose |
+|---|---|
+| `AGENTS.md` | Root-level onboarding instructions for coding agents. |
+| `documents/START_HERE.md` | Human/agent project overview and run commands. |
+| `documents/architecture.md` | Current data flow and component responsibilities. |
+| `documents/api-reference.md` | HTTP and SSE API. |
+| `documents/dashboard.md` | Fleet Control UI behavior. |
+| `documents/event-envelope.md` | Producer event envelope format. |
+| `documents/agent-lifecycle.md` | Agent status and task lifecycle. |
+| `documents/running.md` | Operational runbook. |
+| `docs/setup.md` | Condensed setup/onboarding document. |
+| `docs/pi-producer-adapter.md` | Condensed Pi adapter guide. |
+
+## Common change locations
+
+- Add or change an API endpoint: `src/server.ts`, then update `documents/api-reference.md`.
+- Change agent/task state derivation: `src/store.ts`, then update `documents/agent-lifecycle.md`.
+- Change persisted data shape: `src/types.ts` and `src/db.ts` together.
+- Change Fleet Control UI behavior: `src/web/main.tsx`.
+- Change Fleet Control styling: `src/web/styles.css`.
+- Change Pi event reporting: `.pi/extensions/harness-reporter.ts`, then run/install globally if desired.
+- Change Claude Code reporting: `adapters/claude-code-hook.mjs` and possibly `.claude/settings.json`.

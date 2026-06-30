@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  button { font-family: inherit; }
+  ::selection { background: rgba(255,158,66,0.3); }
+  svg polyline, svg polygon { vector-effect: non-scaling-stroke; }
+  @keyframes fpulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+  @keyframes fadeup { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#15110c"/>
+    <rect x="30" y="34" width="40" height="9" rx="2" fill="#ff9e42"/>
+    <rect x="30" y="48" width="26" height="5" rx="2" fill="#6f6451"/>
+    <circle cx="33" cy="60" r="2.4" fill="#ff9e42"/>
+    <circle cx="33" cy="68" r="2.4" fill="#ff6a5c"/>
+  </svg>
+</template>
+<div ref="{{ rootRef }}" style="--bg:#15110c; --panel:#1d1812; --panel2:#241d15; --line:rgba(255,184,104,0.09); --line2:rgba(255,184,104,0.17); --txt:#f3ebdb; --muted:#a99c84; --faint:#6f6451; --accent:#ff9e42; --working:#ff9e42; --waiting:#ff6a5c; --idle:#a7977b; --offline:#5f5746; --gap:16px; --cardpad:18px; --cardmin:300px; min-height:100vh; background:radial-gradient(1100px 620px at 82% -12%, rgba(255,140,50,0.11), transparent 60%), radial-gradient(900px 520px at -5% -5%, rgba(255,86,60,0.07), transparent 55%), var(--bg); color:var(--txt); font-family:'Space Grotesk', sans-serif; padding:30px 30px 70px; -webkit-font-smoothing:antialiased;">
+  <div style="max-width:1320px; margin:0 auto;">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:28px; flex-wrap:wrap;">
+      <div>
+        <div style="font:600 11px/1 'JetBrains Mono', monospace; letter-spacing:0.22em; color:var(--accent); text-transform:uppercase;">Agent Fleet · Live Observability</div>
+        <h1 style="margin:12px 0 0; font-size:46px; font-weight:700; letter-spacing:-0.025em; line-height:0.98;">Fleet Control</h1>
+        <div style="margin-top:10px; color:var(--muted); font-size:15px; max-width:460px;">Real-time view of every agent and exactly what it is working on right now.</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px; min-width:300px;">
+        <div style="display:flex; align-items:center; gap:16px; padding:14px 18px; border:1px solid var(--line); border-radius:15px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+          <div>
+            <div style="font:600 10px/1 'JetBrains Mono', monospace; letter-spacing:0.14em; color:var(--faint); text-transform:uppercase;">Throughput</div>
+            <div style="display:flex; align-items:baseline; gap:5px; margin-top:7px;"><span style="font:700 30px/1 'JetBrains Mono', monospace; color:var(--accent); letter-spacing:-0.02em;">{{ epm }}</span><span style="color:var(--muted); font-size:12px;">events / min</span></div>
+          </div>
+          <svg width="158" height="40" viewBox="0 0 160 40" preserveAspectRatio="none" style="display:block;">
+            <polygon points="{{ gsparkArea }}" fill="color-mix(in oklch, var(--accent) 16%, transparent)"></polygon>
+            <polyline points="{{ gsparkLine }}" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>
+          </svg>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center; justify-content:flex-end;">
+          <span style="font:500 12px 'JetBrains Mono', monospace; color:var(--faint);">{{ clock }}</span>
+          <button onClick="{{ toggleLive }}" style="display:inline-flex; align-items:center; gap:7px; font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.08em; padding:8px 13px; border-radius:99px; cursor:pointer; color:{{ liveColor }}; background:transparent; border:1px solid var(--line2);">
+            <span style="width:7px; height:7px; border-radius:50%; background:{{ liveDotColor }}; animation:{{ liveDotAnim }};"></span>{{ liveLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI STRIP -->
+    <div style="display:flex; gap:12px; margin-top:26px; flex-wrap:wrap;">
+      <div style="flex:1; min-width:150px; padding:16px 18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+        <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint);">Working</div>
+        <div style="margin-top:8px; font:600 30px 'JetBrains Mono', monospace; color:var(--working); letter-spacing:-0.02em;">{{ stats.working }}</div>
+      </div>
+      <div style="flex:1; min-width:150px; padding:16px 18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+        <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint);">Waiting on input</div>
+        <div style="margin-top:8px; font:600 30px 'JetBrains Mono', monospace; color:var(--waiting); letter-spacing:-0.02em;">{{ stats.waiting }}</div>
+      </div>
+      <div style="flex:1; min-width:150px; padding:16px 18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+        <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint);">Idle / offline</div>
+        <div style="margin-top:8px; font:600 30px 'JetBrains Mono', monospace; color:var(--muted); letter-spacing:-0.02em;">{{ stats.idleoff }}</div>
+      </div>
+      <div style="flex:1; min-width:150px; padding:16px 18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+        <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint);">Avg progress</div>
+        <div style="margin-top:8px; font:600 30px 'JetBrains Mono', monospace; color:var(--txt); letter-spacing:-0.02em;">{{ stats.avgProg }}</div>
+      </div>
+      <div style="flex:1; min-width:150px; padding:16px 18px; border:1px solid var(--line); border-radius:14px; background:linear-gradient(180deg, var(--panel2), var(--panel));">
+        <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint);">Fleet size</div>
+        <div style="margin-top:8px; font:600 30px 'JetBrains Mono', monospace; color:var(--txt); letter-spacing:-0.02em;">{{ stats.total }}</div>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:34px; flex-wrap:wrap;">
+      <div style="display:flex; align-items:baseline; gap:12px;">
+        <h2 style="margin:0; font-size:21px; font-weight:600; letter-spacing:-0.01em;">Live Fleet</h2>
+        <span style="font:500 12px 'JetBrains Mono', monospace; color:var(--faint);">{{ stats.total }} agents</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:inline-flex; padding:4px; gap:4px; border:1px solid var(--line2); border-radius:99px; background:var(--panel);">
+          <button onClick="{{ setCards }}" style="font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; padding:7px 15px; border-radius:99px; border:none; cursor:pointer; background:{{ cardsBg }}; color:{{ cardsColor }};">Cards</button>
+          <button onClick="{{ setTable }}" style="font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; padding:7px 15px; border-radius:99px; border:none; cursor:pointer; background:{{ tableBg }}; color:{{ tableColor }};">Table</button>
+        </div>
+        <button onClick="{{ onRefresh }}" style="font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; padding:9px 15px; border-radius:99px; cursor:pointer; color:var(--muted); background:transparent; border:1px solid var(--line2);">Refresh</button>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div style="display:flex; gap:9px; margin-top:16px; flex-wrap:wrap;">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+        <button onClick="{{ f.onClick }}" style="font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; padding:8px 14px; border-radius:99px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; color:{{ f.color }}; background:{{ f.bg }}; border:1px solid {{ f.border }};">{{ f.label }} <span style="opacity:0.65;">{{ f.count }}</span></button>
+      </sc-for>
+    </div>
+
+    <!-- CARDS VIEW -->
+    <sc-if value="{{ isCards }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(var(--cardmin,300px), 1fr)); gap:var(--gap,16px); margin-top:20px;">
+        <sc-for list="{{ agents }}" as="a" hint-placeholder-count="8">
+          <div style="position:relative; overflow:hidden; border:1px solid var(--line); border-radius:16px; padding:var(--cardpad,18px); background:linear-gradient(180deg, var(--panel2), var(--panel)); box-shadow:{{ a.cardShadow }}; opacity:{{ a.cardOpacity }}; animation:fadeup .5s both; animation-delay:{{ a.delay }};" style-hover="transform:translateY(-3px); border-color:var(--line2);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:9px; height:9px; border-radius:50%; flex:0 0 auto; background:var({{ a.cv }}); box-shadow:0 0 11px var({{ a.cv }}); animation:{{ a.dotAnim }};"></span>
+              <div style="font-size:16px; font-weight:600; letter-spacing:-0.01em;">{{ a.name }}</div>
+              <div style="flex:1;"></div>
+              <div style="display:inline-flex; align-items:center; gap:6px; font:600 10px/1 'JetBrains Mono', monospace; letter-spacing:0.07em; text-transform:uppercase; padding:5px 10px; border-radius:99px; color:var({{ a.cv }}); background:color-mix(in oklch, var({{ a.cv }}) 14%, transparent); border:1px solid color-mix(in oklch, var({{ a.cv }}) 30%, transparent);">{{ a.statusLabel }}</div>
+            </div>
+            <div style="margin-top:5px; font:500 11.5px/1 'JetBrains Mono', monospace; color:var(--faint); letter-spacing:0.02em;">{{ a.model }} · {{ a.project }}</div>
+
+            <div style="margin-top:15px;">
+              <div style="font:600 10px/1 'JetBrains Mono', monospace; letter-spacing:0.13em; color:var(--accent); text-transform:uppercase;">Current task</div>
+              <div style="margin-top:8px; font-size:14.5px; line-height:1.35; color:var(--txt); min-height:39px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ a.task }}</div>
+            </div>
+
+            <sc-if value="{{ a.isWorking }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:13px;">
+                <div style="display:flex; justify-content:space-between; font:600 11px 'JetBrains Mono', monospace; color:var(--muted);">
+                  <span>{{ a.stepLabel }}</span><span style="color:var(--txt);">{{ a.progressLabel }}</span>
+                </div>
+                <div style="margin-top:7px; height:6px; border-radius:99px; background:rgba(255,255,255,0.06); overflow:hidden;">
+                  <div style="height:100%; border-radius:99px; width:{{ a.progressW }}; background:linear-gradient(90deg, color-mix(in oklch, var(--working) 65%, #fff), var(--working)); transition:width .6s ease;"></div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ a.isWaiting }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:13px; display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:11px; background:color-mix(in oklch, var(--waiting) 12%, transparent); border:1px solid color-mix(in oklch, var(--waiting) 26%, transparent);">
+                <div style="flex:1; font:600 12px 'JetBrains Mono', monospace; color:var(--waiting);">Paused · needs your input</div>
+                <button style="font:600 11px 'JetBrains Mono', monospace; letter-spacing:0.06em; color:#1a130b; background:var(--waiting); border:none; padding:7px 13px; border-radius:9px; cursor:pointer;">RESPOND</button>
+              </div>
+            </sc-if>
+
+            <div style="margin-top:15px; display:flex; gap:24px;">
+              <div>
+                <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.1em; color:var(--faint); text-transform:uppercase;">Elapsed</div>
+                <div style="margin-top:4px; font:600 14px 'JetBrains Mono', monospace; color:var(--txt);">{{ a.elapsedLabel }}</div>
+              </div>
+              <div>
+                <div style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.1em; color:var(--faint); text-transform:uppercase;">ETA</div>
+                <div style="margin-top:4px; font:600 14px 'JetBrains Mono', monospace; color:var(--txt);">{{ a.etaLabel }}</div>
+              </div>
+            </div>
+
+            <div style="margin-top:15px; padding-top:13px; border-top:1px solid var(--line);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:7px;">
+                <span style="font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.1em; color:var(--faint); text-transform:uppercase;">Activity</span>
+                <span style="font:600 11px 'JetBrains Mono', monospace; color:var(--muted);">{{ a.eventsLabel }} events</span>
+              </div>
+              <svg width="100%" height="40" viewBox="0 0 260 40" preserveAspectRatio="none" style="display:block;">
+                <polygon points="{{ a.sparkArea }}" fill="color-mix(in oklch, var({{ a.cv }}) 15%, transparent)"></polygon>
+                <polyline points="{{ a.sparkLine }}" fill="none" stroke="var({{ a.cv }})" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>
+              </svg>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- TABLE VIEW -->
+    <sc-if value="{{ isTable }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:20px; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--panel);">
+        <div style="display:grid; grid-template-columns:190px 160px minmax(200px,1fr) 140px 82px 82px 120px 84px; padding:13px 18px; border-bottom:1px solid var(--line); font:600 10px 'JetBrains Mono', monospace; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint);">
+          <div>Agent</div><div>Status</div><div>Current task</div><div>Progress</div><div>Elapsed</div><div>ETA</div><div>Activity</div><div style="text-align:right;">Events</div>
+        </div>
+        <sc-for list="{{ agents }}" as="a" hint-placeholder-count="9">
+          <div style="display:grid; grid-template-columns:190px 160px minmax(200px,1fr) 140px 82px 82px 120px 84px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); opacity:{{ a.cardOpacity }};" style-hover="background:rgba(255,255,255,0.03);">
+            <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+              <span style="width:8px; height:8px; border-radius:50%; flex:0 0 auto; background:var({{ a.cv }}); box-shadow:0 0 9px var({{ a.cv }}); animation:{{ a.dotAnim }};"></span>
+              <div style="min-width:0;">
+                <div style="font-size:14px; font-weight:600; letter-spacing:-0.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ a.name }}</div>
+                <div style="font:500 11px 'JetBrains Mono', monospace; color:var(--faint);">{{ a.model }}</div>
+              </div>
+            </div>
+            <div>
+              <span style="display:inline-flex; align-items:center; font:600 9.5px/1 'JetBrains Mono', monospace; letter-spacing:0.06em; text-transform:uppercase; padding:5px 9px; border-radius:99px; color:var({{ a.cv }}); background:color-mix(in oklch, var({{ a.cv }}) 13%, transparent); border:1px solid color-mix(in oklch, var({{ a.cv }}) 28%, transparent);">{{ a.statusLabel }}</span>
+            </div>
+            <div style="font-size:13px; color:var(--muted); padding-right:16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ a.task }}</div>
+            <div style="padding-right:16px;">
+              <div style="height:5px; border-radius:99px; background:rgba(255,255,255,0.06); overflow:hidden;"><div style="height:100%; border-radius:99px; width:{{ a.progressW }}; background:var({{ a.cv }}); transition:width .6s ease;"></div></div>
+              <div style="margin-top:5px; font:600 10px 'JetBrains Mono', monospace; color:var(--faint);">{{ a.progressLabel }}</div>
+            </div>
+            <div style="font:500 12px 'JetBrains Mono', monospace; color:var(--muted);">{{ a.elapsedLabel }}</div>
+            <div style="font:500 12px 'JetBrains Mono', monospace; color:var(--muted);">{{ a.etaLabel }}</div>
+            <div>
+              <svg width="110" height="26" viewBox="0 0 96 26" preserveAspectRatio="none" style="display:block;">
+                <polygon points="{{ a.sparkAreaS }}" fill="color-mix(in oklch, var({{ a.cv }}) 15%, transparent)"></polygon>
+                <polyline points="{{ a.sparkLineS }}" fill="none" stroke="var({{ a.cv }})" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></polyline>
+              </svg>
+            </div>
+            <div style="text-align:right; font:600 12px 'JetBrains Mono', monospace; color:var(--txt);">{{ a.eventsLabel }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:900},&quot;accent&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;amber&quot;,&quot;ember&quot;,&quot;copper&quot;],&quot;default&quot;:&quot;amber&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;default&quot;:&quot;comfortable&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Theme&quot;}}">
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  state = { view: 'cards', filter: 'all', live: true, agents: [], gspark: [], epm: 0, clock: '' };
+
+  componentDidMount() {
+    this.setState({ agents: this.seed(), gspark: Array.from({ length: 48 }, () => 0.28) });
+    this.applyTheme();
+    this.setClock();
+    this.timer = setInterval(() => { if (this.state.live) this.tick(); this.setClock(); }, 1000);
+  }
+  componentDidUpdate() { this.applyTheme(); }
+  componentWillUnmount() { clearInterval(this.timer); }
+
+  applyTheme() {
+    const el = this.rootRef.current; if (!el) return;
+    const themes = { amber: '#ff9e42', ember: '#ff7a39', copper: '#e88f54' };
+    const acc = themes[this.props.accent] || themes.amber;
+    el.style.setProperty('--accent', acc);
+    el.style.setProperty('--working', acc);
+    const dense = this.props.density === 'compact';
+    el.style.setProperty('--gap', dense ? '10px' : '16px');
+    el.style.setProperty('--cardpad', dense ? '13px' : '18px');
+    el.style.setProperty('--cardmin', dense ? '252px' : '300px');
+  }
+
+  r(a, b) { return a + Math.random() * (b - a); }
+  ri(a, b) { return Math.floor(this.r(a, b + 1)); }
+  clamp(v) { return Math.max(0, Math.min(1, v)); }
+
+  genHist(state) {
+    const lvl = { working: 0.72, waiting: 0.14, idle: 0.05, offline: 0 }[state] ?? 0.1;
+    return Array.from({ length: 28 }, () => this.clamp(lvl + this.r(-0.18, 0.2)));
+  }
+
+  seed() {
+    const A = (name, model, project, state, task, step, total, eta, events) => ({
+      name, model, project, state, task, step, total, eta, events,
+      progress: total ? step / total : 0, elapsed: this.ri(40, 900), hist: this.genHist(state),
+    });
+    return [
+      A('Atlas', 'Claude Opus', 'payments-api', 'working', 'Refactor settlement reconciliation logic', 6, 11, 224, 312),
+      A('Beacon', 'Claude Sonnet', 'web-dashboard', 'working', 'Implement realtime SSE activity charts', 3, 8, 408, 188),
+      A('Cipher', 'Claude Opus', 'auth-service', 'waiting', 'Approve rotation of production secrets', 4, 4, 0, 96),
+      A('Dynamo', 'Claude Sonnet', 'data-pipeline', 'working', 'Backfill events table partitions', 9, 14, 536, 524),
+      A('Echo', 'Claude Haiku', 'mobile-app', 'waiting', 'Pick a navigation library — choose an option', 2, 7, 0, 64),
+      A('Forge', 'Claude Sonnet', 'infra-terraform', 'working', 'Provision staging Kubernetes cluster', 2, 6, 302, 142),
+      A('Gale', 'Claude Haiku', 'search-index', 'idle', 'Awaiting assignment', 0, 0, 0, 30),
+      A('Halo', 'Claude Opus', 'billing', 'working', 'Generate and dispatch May invoices', 11, 12, 58, 401),
+      A('Iris', 'Claude Opus', 'ml-platform', 'working', 'Fine-tune ranking model v4', 5, 20, 1764, 760),
+      A('Juno', 'Claude Haiku', 'docs-site', 'offline', 'Disconnected', 0, 0, 0, 12),
+      A('Kilo', 'Claude Sonnet', 'qa-suite', 'waiting', 'Review 3 failing end-to-end tests', 5, 9, 0, 210),
+    ];
+  }
+
+  tick() {
+    const pool = [
+      'Add retry/backoff to webhook delivery', 'Write migration for orders schema',
+      'Patch CVE in container image pipeline', 'Optimize N+1 queries in activity feed',
+      'Draft API docs for v2 endpoints', 'Build flaky-test quarantine harness',
+    ];
+    this.setState(s => {
+      let epm = 0;
+      const agents = s.agents.map(o => {
+        const a = { ...o, hist: o.hist.slice() };
+        if (a.state === 'working') {
+          a.elapsed++; a.eta = Math.max(0, a.eta - 1);
+          if (Math.random() < 0.18 && a.step < a.total) a.step++;
+          a.progress = a.total ? a.step / a.total : Math.min(1, a.progress + 0.01);
+          const inc = this.ri(4, 14); a.events += inc; epm += inc;
+          a.hist.push(this.clamp(0.7 + this.r(-0.2, 0.28)));
+          if (a.total > 0 && a.step >= a.total) {
+            a.state = 'idle'; a.task = 'Awaiting assignment'; a.progress = 0; a.step = 0; a.total = 0; a.eta = 0; a.elapsed = 0;
+          } else if (Math.random() < 0.01) {
+            a.state = 'waiting'; a.task = 'Needs review before continuing';
+          }
+        } else if (a.state === 'waiting') {
+          a.elapsed++; const inc = this.ri(0, 2); a.events += inc; epm += inc;
+          a.hist.push(this.clamp(0.14 + this.r(-0.08, 0.12)));
+          if (Math.random() < 0.015) {
+            a.state = 'working'; a.eta = this.ri(120, 600); a.elapsed = 0;
+            if (!a.total) { a.total = this.ri(5, 12); a.step = 1; a.progress = a.step / a.total; }
+          }
+        } else if (a.state === 'idle') {
+          a.elapsed++; a.hist.push(this.clamp(0.05 + this.r(0, 0.06)));
+          if (Math.random() < 0.04) {
+            a.state = 'working'; a.task = pool[this.ri(0, pool.length - 1)];
+            a.total = this.ri(6, 16); a.step = 1; a.progress = a.step / a.total; a.eta = this.ri(180, 900); a.elapsed = 0;
+          }
+        } else {
+          a.hist.push(0);
+        }
+        if (a.hist.length > 28) a.hist.shift();
+        return a;
+      });
+      const gspark = s.gspark.slice();
+      gspark.push(this.clamp(epm / 170));
+      if (gspark.length > 48) gspark.shift();
+      return { agents, gspark, epm };
+    });
+  }
+
+  setClock() { this.setState({ clock: new Date().toLocaleTimeString('en-GB') }); }
+
+  fmt(sec) {
+    if (sec <= 0) return '0s';
+    if (sec < 60) return sec + 's';
+    const m = Math.floor(sec / 60), s = sec % 60;
+    if (m < 60) return m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+    const h = Math.floor(m / 60);
+    return h + 'h ' + (m % 60) + 'm';
+  }
+  fmtEta(a) {
+    if (a.state !== 'working') return '—';
+    if (a.eta <= 0) return 'soon';
+    return this.fmt(a.eta);
+  }
+
+  spark(hist, w, h) {
+    const arr = hist && hist.length ? hist : [0.3, 0.3];
+    const n = arr.length, pad = 3;
+    const pts = arr.map((v, i) => {
+      const x = n > 1 ? (i / (n - 1)) * w : 0;
+      const y = pad + (1 - v) * (h - 2 * pad);
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    });
+    const line = pts.join(' ');
+    return { line, area: '0,' + h + ' ' + line + ' ' + w + ',' + h };
+  }
+
+  renderVals() {
+    const meta = {
+      working: { label: 'Working', cv: '--working' },
+      waiting: { label: 'Waiting on input', cv: '--waiting' },
+      idle: { label: 'Idle', cv: '--idle' },
+      offline: { label: 'Offline', cv: '--offline' },
+    };
+    const raw = this.state.agents || [];
+    const av = raw.map((a, idx) => {
+      const m = meta[a.state];
+      const sp = this.spark(a.hist, 260, 40);
+      const sps = this.spark(a.hist, 96, 26);
+      return {
+        name: a.name, model: a.model, project: a.project, state: a.state,
+        cv: m.cv, statusLabel: m.label,
+        dotAnim: (a.state === 'working' || a.state === 'waiting') ? 'fpulse 1.6s ease-in-out infinite' : 'none',
+        isWorking: a.state === 'working', isWaiting: a.state === 'waiting',
+        task: a.task,
+        stepLabel: a.total ? ('Step ' + a.step + ' / ' + a.total) : 'No active steps',
+        progressW: a.total ? Math.round(a.progress * 100) + '%' : '0%',
+        progressLabel: a.total ? Math.round(a.progress * 100) + '%' : '—',
+        elapsedLabel: this.fmt(a.elapsed),
+        etaLabel: this.fmtEta(a),
+        eventsLabel: a.events.toLocaleString(),
+        sparkLine: sp.line, sparkArea: sp.area, sparkLineS: sps.line, sparkAreaS: sps.area,
+        cardShadow: a.state === 'waiting'
+          ? '0 0 0 1px color-mix(in oklch, var(--waiting) 36%, transparent), 0 18px 44px -24px color-mix(in oklch, var(--waiting) 65%, transparent)'
+          : '0 16px 36px -28px rgba(0,0,0,0.85)',
+        cardOpacity: (a.state === 'idle' || a.state === 'offline') ? '0.72' : '1',
+        delay: (idx * 0.04).toFixed(2) + 's',
+      };
+    });
+    const filter = this.state.filter;
+    const filtered = filter === 'all' ? av : av.filter(x => x.state === filter);
+    const counts = { all: raw.length, working: 0, waiting: 0, idle: 0, offline: 0 };
+    raw.forEach(a => counts[a.state]++);
+    const F = (k, l) => ({
+      key: k, label: l, count: counts[k],
+      color: filter === k ? '#1a130b' : 'var(--muted)',
+      bg: filter === k ? 'var(--accent)' : 'transparent',
+      border: filter === k ? 'var(--accent)' : 'var(--line2)',
+      onClick: () => this.setState({ filter: k }),
+    });
+    const workingArr = raw.filter(a => a.state === 'working');
+    const avgProg = workingArr.length
+      ? Math.round(workingArr.reduce((t, a) => t + (a.total ? a.progress : 0), 0) / workingArr.length * 100) : 0;
+    const view = this.state.view, live = this.state.live;
+    const gsp = this.spark(this.state.gspark, 160, 40);
+    return {
+      rootRef: this.rootRef,
+      agents: filtered, isCards: view === 'cards', isTable: view === 'table',
+      filters: [F('all', 'All'), F('working', 'Working'), F('waiting', 'Waiting'), F('idle', 'Idle'), F('offline', 'Offline')],
+      stats: { working: counts.working, waiting: counts.waiting, idleoff: counts.idle + counts.offline, avgProg: avgProg + '%', total: raw.length },
+      epm: this.state.epm || 0, clock: this.state.clock,
+      gsparkLine: gsp.line, gsparkArea: gsp.area,
+      cardsBg: view === 'cards' ? 'var(--accent)' : 'transparent', cardsColor: view === 'cards' ? '#1a130b' : 'var(--muted)',
+      tableBg: view === 'table' ? 'var(--accent)' : 'transparent', tableColor: view === 'table' ? '#1a130b' : 'var(--muted)',
+      setCards: () => this.setState({ view: 'cards' }), setTable: () => this.setState({ view: 'table' }),
+      onRefresh: () => this.tick(),
+      liveLabel: live ? 'LIVE' : 'PAUSED',
+      liveColor: live ? '#86e3ad' : 'var(--muted)',
+      liveDotColor: live ? '#46d98a' : 'var(--faint)',
+      liveDotAnim: live ? 'fpulse 1.6s ease-in-out infinite' : 'none',
+      toggleLive: () => this.setState(s => ({ live: !s.live })),
+    };
+  }
+}
+</script>
+</body>
+</html>

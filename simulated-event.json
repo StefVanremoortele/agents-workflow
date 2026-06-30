@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1",
+  "source": {
+    "id": "sim-agent-1",
+    "type": "agent",
+    "name": "Simulated Agent",
+    "adapter": "manual-curl",
+    "project": {
+      "name": "pi-test",
+      "path": "/home/SimitStef/sources/repos/stef/pi-test"
+    },
+    "host": {
+      "hostname": "devbox",
+      "user": "SimitStef",
+      "cwd": "/home/SimitStef/sources/repos/stef/pi-test"
+    }
+  },
+  "event": {
+    "type": "agent.status",
+    "title": "Simulated agent event from file",
+    "content": "This event was loaded from simulated-event.json and sent with curl.",
+    "severity": "info",
+    "tags": ["simulation", "curl"],
+    "payload": {
+      "status": "working",
+      "step": "manual-test"
+    }
+  },
+  "context": {
+    "sessionId": "manual-test-session",
+    "visibility": "project"
+  }
+}
