@@ -97,8 +97,8 @@ function AgentTableRow({ agent }: { agent: FleetAgent }) {
       <StatusPill state={agent.state} compact />
       <span className="task-cell">{agent.task}</span>
       <div className="table-progress">
-        <div><span style={{ width: `${agent.progress}%` }} /></div>
-        <b>{agent.progress}%</b>
+        <div><span style={{ width: `${agent.progress ?? 0}%` }} /></div>
+        <b>{agent.progress !== null ? `${agent.progress}%` : "—"}</b>
       </div>
       <span>{agent.elapsed}</span>
       <span>{agent.eta}</span>

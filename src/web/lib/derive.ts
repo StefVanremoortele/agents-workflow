@@ -12,9 +12,9 @@ export function toFleetAgent(
   const state = mapState(agent.status);
   const task = agent.currentTask ?? tasks.find((item) => item.agentId === agent.id && (item.status === "running" || item.status === "blocked"));
   const eventCount = agent.stats?.eventCount ?? 0;
-  const progress = state === "working" ? inferProgress(agent, task) : state === "idle" ? 100 : 0;
-  const total = Math.max(3, Math.min(20, ((task?.id.length ?? agent.id.length) % 14) + 6));
-  const step = Math.max(1, Math.min(total, Math.round((progress / 100) * total)));
+  const progress = resolveProgress(task, state);
+  const step = task?.step ?? null;
+  const total = task?.totalSteps ?? task?.steps?.length ?? null;
   const startedAt = task?.startedAt ?? agent.timestamps.lastStatusChangeAt ?? agent.timestamps.firstSeenAt ?? agent.timestamps.lastSeenAt;
   return {
     id: agent.id,
@@ -26,7 +26,7 @@ export function toFleetAgent(
     step,
     total,
     progress,
-    eta: state === "working" ? inferEta(startedAt, progress) : "—",
+    eta: progress !== null && state === "working" ? inferEta(startedAt, progress) : "—",
     elapsed: formatDuration(Date.now() - Date.parse(startedAt)),
     events: eventCount,
     hist: padHistory(hist, histLength),
@@ -41,11 +41,10 @@ export function mapState(status: AgentStatus): FleetState {
   return "idle";
 }
 
-export function inferProgress(agent: AgentRecord, task?: AgentTaskRecord): number {
-  const source = `${task?.id ?? agent.lastEvent?.id ?? agent.id}:${agent.stats.eventCount}`;
-  let hash = 0;
-  for (const char of source) hash = (hash * 31 + char.charCodeAt(0)) % 997;
-  return Math.max(8, Math.min(96, hash % 100));
+export function resolveProgress(task: AgentTaskRecord | undefined, state: FleetState): number | null {
+  if (typeof task?.progress === "number") return Math.max(0, Math.min(100, Math.round(task.progress)));
+  if (task?.status === "completed" || state === "idle") return 100;
+  return null;
 }
 
 export function inferEta(startedAt: string, progress: number): string {
@@ -82,7 +81,9 @@ export function sortAgents(a: AgentRecord, b: AgentRecord): number {
 }
 
 export function buildTaskSteps(agent: FleetAgent): Array<{ label: string; state: "done" | "active" | "todo" }> {
-  const labels = ["Analyze requirements", "Read relevant files", "Draft implementation plan", "Apply code changes", "Write & adjust tests", "Run test suite", "Lint & typecheck", "Self-review diff", "Update documentation", "Open pull request", "Address review feedback"];
-  const doneCount = Math.max(0, Math.min(labels.length, agent.step - 1));
-  return labels.map((label, index) => ({ label, state: index < doneCount ? "done" : index === doneCount && agent.state === "working" ? "active" : "todo" }));
+  const taskSteps = agent.raw.currentTask?.steps ?? [];
+  return taskSteps.map((step) => ({
+    label: step.label,
+    state: step.status === "completed" ? "done" : step.status === "running" || step.status === "blocked" || step.status === "failed" ? "active" : "todo",
+  }));
 }

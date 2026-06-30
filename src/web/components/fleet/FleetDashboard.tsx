@@ -43,9 +43,9 @@ export function FleetDashboard() {
   const epm = React.useMemo(() => eventTicks.reduce((sum, value) => sum + value, 0), [eventTicks]);
   const gspark = React.useMemo(() => padHistory(eventTicks.map((value) => Math.min(1, value / 20)), globalHistLength), [eventTicks]);
   const avgProgress = React.useMemo(() => {
-    const working = fleetAgents.filter((agent) => agent.state === "working");
-    if (working.length === 0) return 0;
-    return Math.round(working.reduce((sum, agent) => sum + agent.progress, 0) / working.length);
+    const workingWithProgress = fleetAgents.filter((agent) => agent.state === "working" && agent.progress !== null);
+    if (workingWithProgress.length === 0) return null;
+    return Math.round(workingWithProgress.reduce((sum, agent) => sum + (agent.progress ?? 0), 0) / workingWithProgress.length);
   }, [fleetAgents]);
 
   return (
@@ -78,7 +78,7 @@ export function FleetDashboard() {
         <Kpi label="Working" value={counts.working} tone="working" />
         <Kpi label="Waiting on input" value={counts.waiting} tone="waiting" />
         <Kpi label="Idle / offline" value={counts.idle + counts.offline} tone="muted" />
-        <Kpi label="Avg progress" value={`${avgProgress}%`} />
+        <Kpi label="Avg progress" value={avgProgress !== null ? `${avgProgress}%` : "—"} />
         <Kpi label="Fleet size" value={dashboard.agentsTotal || counts.all} />
       </section>
 

@@ -125,13 +125,13 @@ It includes:
 - hero row with status dot, name, and status pill
 - metadata line with model, project, repository, and short agent id
 - metric tiles: elapsed, ETA, progress, events
-- current task panel with progress and checklist
+- current task panel with reported progress and reported task steps when producer telemetry provides them
 - throughput sparkline panel
 - details sidebar with model/project/repository/agent id/started/uptime
 - latest conclusion panel showing the final assistant response captured at task completion
 - activity log sourced from recent events for that agent, including conclusion/content previews
 
-Some task checklist steps are inferred client-side from current progress because the event protocol does not yet provide detailed step records.
+The UI no longer fabricates workflow checklist items. If a producer does not report `progress`, `step`/`totalSteps`, or `steps` in task event payloads, Fleet Control displays progress as unavailable and directs users to the live activity log.
 
 ## State management
 
@@ -146,7 +146,7 @@ The client infers:
 - display state (`working`, `waiting`, `idle`, `offline`) from server status
 - model name from adapter/name
 - project name from event project metadata
-- progress/step/ETA where explicit task progress is not available
+- progress/step/ETA only when explicit task progress is available
 - sparklines from event-count deltas over time
 
 ## Styling
@@ -166,5 +166,5 @@ The client infers:
 
 - `apiBase` defaults to `http://localhost:4000`; override at build time with `VITE_API_BASE` (see `src/web/config.ts`).
 - Pause/Stop/Respond buttons are visual placeholders; no control API is implemented yet.
-- Detail task steps are inferred rather than stored as first-class backend records.
+- Pi currently does not report granular task steps, so many active Pi tasks show progress as unavailable until producer telemetry is extended.
 - Alerts/rules are available via API but are not surfaced in the current Fleet Control UI.

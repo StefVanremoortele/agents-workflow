@@ -1,5 +1,5 @@
 import { HarnessDatabase } from "./db.js";
-import type { AgentRecord, AgentStatus, AgentTaskRecord, AlertRecord, ConclusionRecord, DashboardSummary, HarnessEvent, HarnessEventInput, Severity, TriggerRule } from "./types.js";
+import type { AgentRecord, AgentStatus, AgentTaskRecord, AgentTaskStepRecord, AlertRecord, ConclusionRecord, DashboardSummary, HarnessEvent, HarnessEventInput, Severity, TriggerRule } from "./types.js";
 
 const ACTIVE_STATUSES = new Set<AgentStatus>(["starting", "working", "blocked", "waiting_for_input", "error"]);
 const OFFLINE_TIMEOUT_MS = 30_000;
@@ -312,6 +312,7 @@ export class HarnessStore {
     task.summary = input.summary;
     task.status = input.status;
     task.updatedAt = event.timestamp;
+    this.applyTaskProgress(event, task);
     if (!existing) this.tasks.unshift(task);
     this.tasks = this.tasks.slice(0, 500);
     this.db.saveTask(task);
@@ -327,9 +328,24 @@ export class HarnessStore {
       task.summary = event.event.content ?? task.summary;
       task.updatedAt = event.timestamp;
       task.completedAt = event.timestamp;
+      this.applyTaskProgress(event, task);
+      if (status === "completed" && task.progress === undefined) task.progress = 100;
       this.db.saveTask(task);
     }
     agent.currentTask = undefined;
+  }
+
+  private applyTaskProgress(event: HarnessEvent, task: AgentTaskRecord): void {
+    const payload = event.event.payload ?? {};
+    const progress = readNumber(payload.progress) ?? readNumber(payload.progressPercent);
+    const step = readNumber(payload.step) ?? readNumber(payload.currentStep);
+    const totalSteps = readNumber(payload.totalSteps) ?? readNumber(payload.total);
+    const steps = readTaskSteps(payload.steps);
+
+    if (progress !== undefined) task.progress = Math.max(0, Math.min(100, progress));
+    if (step !== undefined) task.step = Math.max(0, Math.floor(step));
+    if (totalSteps !== undefined) task.totalSteps = Math.max(0, Math.floor(totalSteps));
+    if (steps) task.steps = steps;
   }
 
   private markOfflineAgents(): void {
@@ -361,6 +377,41 @@ export class HarnessStore {
 
 function isAgentStatus(value: string | undefined): value is AgentStatus {
   return !!value && ["starting", "idle", "working", "blocked", "waiting_for_input", "error", "stopping", "offline"].includes(value);
+}
+
+function readNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+function readTaskSteps(value: unknown): AgentTaskStepRecord[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const steps = value.flatMap((item, index): AgentTaskStepRecord[] => {
+    if (typeof item === "string" && item.trim()) return [{ label: item.trim(), status: "todo" }];
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    const label = typeof record.label === "string" ? record.label.trim() : typeof record.title === "string" ? record.title.trim() : "";
+    if (!label) return [];
+    const status = readStepStatus(record.status) ?? (index === 0 ? "running" : "todo");
+    return [{
+      id: typeof record.id === "string" ? record.id : undefined,
+      label,
+      status,
+      updatedAt: typeof record.updatedAt === "string" ? record.updatedAt : undefined,
+    }];
+  });
+  return steps.length ? steps : undefined;
+}
+
+function readStepStatus(value: unknown): AgentTaskStepRecord["status"] | undefined {
+  if (value === "todo" || value === "running" || value === "completed" || value === "blocked" || value === "failed") return value;
+  if (value === "done") return "completed";
+  if (value === "active" || value === "in_progress") return "running";
+  return undefined;
 }
 
 function matchesRule(event: HarnessEvent, rule: TriggerRule): boolean {

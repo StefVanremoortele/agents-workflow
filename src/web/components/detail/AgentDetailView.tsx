@@ -37,6 +37,8 @@ export function AgentDetailView({
   const [conclusionZen, setConclusionZen] = React.useState(false);
   const startedAt = agent.raw.currentTask?.startedAt ?? agent.raw.timestamps.firstSeenAt ?? agent.raw.timestamps.lastSeenAt;
   const steps = buildTaskSteps(agent);
+  const hasProgress = agent.progress !== null;
+  const hasSteps = agent.step !== null && agent.total !== null && agent.total > 0;
   const repository = agent.raw.project?.repository ?? agent.raw.project?.name ?? agent.project;
   const logEvents = dedupeLogEvents(events.length ? events : fallbackEvents(agent));
 
@@ -86,7 +88,7 @@ export function AgentDetailView({
         <section className="detail-metrics">
           <DetailMetric label="Elapsed" value={agent.elapsed} />
           <DetailMetric label="ETA" value={agent.eta} />
-          <DetailMetric label="Progress" value={`${agent.progress}%`} accent />
+          <DetailMetric label="Progress" value={hasProgress ? `${agent.progress}%` : "—"} accent />
           <DetailMetric label="Events" value={agent.events} />
         </section>
 
@@ -96,16 +98,23 @@ export function AgentDetailView({
               <div className="detail-panel-label">Current task</div>
               <h2>{agent.task}</h2>
               {agent.raw.currentTask?.summary ? <MarkdownContent content={agent.raw.currentTask.summary} className="task-summary" /> : null}
-              <div className="detail-progress-head"><span>Step {agent.step} / {agent.total}</span><strong>{agent.progress}%</strong></div>
-              <div className="progress-track"><span style={{ width: `${agent.progress}%` }} /></div>
-              <ol className="task-steps">
-                {steps.map((step) => (
-                  <li key={step.label} className={step.state}>
-                    <span /> <p>{step.label}</p>
-                    <em>{step.state === "done" ? "Done" : step.state === "active" ? "In progress" : ""}</em>
-                  </li>
-                ))}
-              </ol>
+              <div className="detail-progress-head">
+                <span>{hasSteps ? `Step ${agent.step} / ${agent.total}` : "Progress not reported"}</span>
+                <strong>{hasProgress ? `${agent.progress}%` : "—"}</strong>
+              </div>
+              <div className="progress-track"><span style={{ width: `${agent.progress ?? 0}%` }} /></div>
+              {steps.length > 0 ? (
+                <ol className="task-steps">
+                  {steps.map((step) => (
+                    <li key={step.label} className={step.state}>
+                      <span /> <p>{step.label}</p>
+                      <em>{step.state === "done" ? "Done" : step.state === "active" ? "In progress" : ""}</em>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="task-summary">No task step telemetry has been reported for this task. Use the activity log below for the real event stream.</p>
+              )}
             </article>
           </div>
 

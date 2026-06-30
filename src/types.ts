@@ -72,6 +72,13 @@ export type HarnessEvent = HarnessEventInput & {
   timestamp: string;
 };
 
+export type AgentTaskStepRecord = {
+  id?: string;
+  label: string;
+  status: "todo" | "running" | "completed" | "blocked" | "failed";
+  updatedAt?: string;
+};
+
 export type AgentTaskRecord = {
   id: string;
   agentId: string;
@@ -82,6 +89,10 @@ export type AgentTaskRecord = {
   updatedAt: string;
   completedAt?: string;
   sourceEventId: string;
+  progress?: number;
+  step?: number;
+  totalSteps?: number;
+  steps?: AgentTaskStepRecord[];
 };
 
 export type AgentRecord = {

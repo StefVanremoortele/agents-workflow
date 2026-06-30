@@ -128,6 +128,26 @@ type EventContext = {
 }
 ```
 
+## Task progress payload fields
+
+For `agent.task.started`, `agent.task.updated`, `agent.task.completed`, and `agent.task.blocked`, producers may report real progress fields in `event.payload`:
+
+```json
+{
+  "taskId": "task-123",
+  "task": "Implement feature",
+  "progress": 40,
+  "step": 2,
+  "totalSteps": 5,
+  "steps": [
+    { "label": "Read files", "status": "completed" },
+    { "label": "Apply changes", "status": "running" }
+  ]
+}
+```
+
+If these fields are omitted, the dashboard shows progress as unavailable instead of fabricating mock steps.
+
 ## Core event types considered so far
 
 - `agent.status`

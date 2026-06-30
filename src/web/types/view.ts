@@ -48,9 +48,9 @@ export type FleetAgent = {
   project: string;
   state: FleetState;
   task: string;
-  step: number;
-  total: number;
-  progress: number;
+  step: number | null;
+  total: number | null;
+  progress: number | null;
   eta: string;
   elapsed: string;
   events: number;
