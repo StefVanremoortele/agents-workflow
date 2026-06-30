@@ -61,11 +61,13 @@ Override it with:
 export HARNESS_DB_PATH=/path/to/harness.db
 ```
 
-Initialize or reset the database during development:
+Initialize, clear, or reset the database during development:
 
 ```bash
-npm run db:init
-npm run db:reset
+npm run db:init       # create schema if needed
+npm run db:clear      # delete all rows while keeping the database file/schema
+npm run db:clear -- --keep-rules  # keep trigger rules while clearing runtime data
+npm run db:reset      # remove the SQLite database files entirely
 ```
 
 If an adapter cannot reach the server, it appends events to `.harness/outbox.jsonl` by default. On the next server start, the server imports that outbox into SQLite and archives it after a successful import. Override the path with `HARNESS_OUTBOX_PATH`.

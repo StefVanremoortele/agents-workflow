@@ -42,6 +42,7 @@ The Fleet Control SPA is modular. Import within the app using the `@/` alias (e.
 | `scripts/install-pi-harness-extension.mjs` | Copies the Pi extension to `~/.pi/agent/extensions/` and optionally writes global config. |
 | `scripts/set-pi-harness-name.mjs` | Sets/updates the display name for a Pi harness source. |
 | `scripts/reload-source-name.mjs` | Sends a one-off status event to refresh a source name. |
+| `scripts/db-clear.mjs` | Clears harness SQLite tables without deleting the database file. |
 | `adapters/claude-code-hook.mjs` | Claude Code hook producer; maps hooks to harness events and queues offline outbox entries. |
 | `.claude/settings.json` | Project-local Claude Code hook configuration pointing at the adapter. |
 

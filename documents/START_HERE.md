@@ -43,6 +43,12 @@ Build:
 npm run build
 ```
 
+Clear local harness data while keeping the SQLite schema:
+
+```bash
+npm run db:clear
+```
+
 ## Install Pi reporting globally
 
 ```bash

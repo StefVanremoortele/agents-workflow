@@ -11,6 +11,7 @@
     "pi:harness:name": "node scripts/set-pi-harness-name.mjs",
     "pi:harness:install-global": "node scripts/install-pi-harness-extension.mjs",
     "db:init": "node scripts/db-init.mjs",
+    "db:clear": "node scripts/db-clear.mjs",
     "db:reset": "node scripts/db-reset.mjs",
     "start:server": "node dist-server/server.js",
     "build:server": "tsc -p tsconfig.json",

@@ -21,7 +21,8 @@ npm run dev              # server + Vite web app
 npm run dev:server       # server only, http://localhost:4000
 npm run dev:web          # web only, usually http://localhost:5173
 npm run build            # TypeScript server + Vite web build
-npm run db:reset         # reset local SQLite harness DB
+npm run db:clear         # clear local SQLite harness data while keeping schema
+npm run db:reset         # reset local SQLite harness DB files
 npm run pi:harness:install-global -- --server-url http://localhost:4000
 ```
 
