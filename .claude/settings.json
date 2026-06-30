@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/SimitStef/sources/repos/stef/pi-test/adapters/claude-code-hook.mjs"
+            "command": "node /home/SimitStef/sources/repos/stef/pi-harness/adapters/claude-code-hook.mjs"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/SimitStef/sources/repos/stef/pi-test/adapters/claude-code-hook.mjs"
+            "command": "node /home/SimitStef/sources/repos/stef/pi-harness/adapters/claude-code-hook.mjs"
           }
         ]
       }
@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/SimitStef/sources/repos/stef/pi-test/adapters/claude-code-hook.mjs"
+            "command": "node /home/SimitStef/sources/repos/stef/pi-harness/adapters/claude-code-hook.mjs"
           }
         ]
       }
@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/SimitStef/sources/repos/stef/pi-test/adapters/claude-code-hook.mjs"
+            "command": "node /home/SimitStef/sources/repos/stef/pi-harness/adapters/claude-code-hook.mjs"
           }
         ]
       }
@@ -46,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node /home/SimitStef/sources/repos/stef/pi-test/adapters/claude-code-hook.mjs"
+            "command": "node /home/SimitStef/sources/repos/stef/pi-harness/adapters/claude-code-hook.mjs"
           }
         ]
       }
