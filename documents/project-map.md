@@ -69,8 +69,6 @@ The Fleet Control SPA is modular. Import within the app using the `@/` alias (e.
 | `documents/event-envelope.md` | Producer event envelope format. |
 | `documents/agent-lifecycle.md` | Agent status and task lifecycle. |
 | `documents/running.md` | Operational runbook. |
-| `docs/setup.md` | Condensed setup/onboarding document. |
-| `docs/pi-producer-adapter.md` | Condensed Pi adapter guide. |
 
 ## Common change locations
 
